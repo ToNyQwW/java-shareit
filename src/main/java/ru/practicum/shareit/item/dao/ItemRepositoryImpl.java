@@ -43,7 +43,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public void update(Item item) {
+    public void updateItem(Item item) {
         items.put(item.getId(), item);
     }
 }

@@ -15,5 +15,5 @@ public interface ItemRepository {
 
     List<Item> getUserItems(long userId);
 
-    void update(Item item);
+    void updateItem(Item item);
 }
