@@ -1,12 +1,40 @@
 package ru.practicum.shareit.user.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UserCreateDto;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserUpdateDto;
+import ru.practicum.shareit.user.service.UserService;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
+@AllArgsConstructor
 @RequestMapping(path = "/users")
 public class UserController {
+
+    private final UserService userService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
+        return userService.createUser(userCreateDto);
+    }
+
+    @GetMapping("/{id}")
+    public UserDto getUser(@PathVariable long id) {
+        return userService.getUser(id);
+    }
+
+    @PatchMapping("/{id}")
+    public UserDto updateUser(@PathVariable long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        return userService.updateUser(id, userUpdateDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable long id) {
+        userService.deleteUser(id);
+    }
 }
