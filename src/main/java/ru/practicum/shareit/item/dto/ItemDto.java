@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,8 +8,7 @@ import lombok.Data;
 @Builder
 public class ItemDto {
 
-    @NotNull
-    private Long id;
+    private long id;
 
     @NotBlank
     private String name;
@@ -18,6 +16,5 @@ public class ItemDto {
     @NotBlank
     private String description;
 
-    @NotNull
-    private Boolean available;
+    private boolean available;
 }
