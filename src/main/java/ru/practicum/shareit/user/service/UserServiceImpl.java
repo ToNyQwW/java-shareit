@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -11,6 +12,7 @@ import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toUser(userCreateDto);
         User createdUser = userRepository.createUser(user);
+        log.info("User created: {}", user);
 
         return userMapper.toUserDto(createdUser);
     }
@@ -31,6 +34,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUser(long id) {
         User user = getUserOrElseThrow(id);
+        log.info("User get: {}", user);
 
         return userMapper.toUserDto(user);
     }
@@ -41,6 +45,7 @@ public class UserServiceImpl implements UserService {
 
         updateUserFields(user, userUpdateDto);
         userRepository.updateUser(user);
+        log.info("User updated: {}", user);
 
         return userMapper.toUserDto(user);
     }
@@ -48,6 +53,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(long id) {
         userRepository.deleteUser(id);
+        log.info("User deleted: {}", id);
     }
 
     private void updateUserFields(User user, UserUpdateDto userUpdateDto) {

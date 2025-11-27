@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dao.ItemRepository;
@@ -15,6 +16,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
@@ -30,6 +32,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemMapper.toItem(itemCreateDto);
         item.setOwner(user);
         Item createdItem = itemRepository.createItem(item);
+        log.info("Item created: {}", createdItem);
 
         return itemMapper.toItemDto(createdItem);
     }
@@ -37,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto getItem(long id) {
         Item item = getItemOrElseThrow(id);
+        log.info("get Item: {}", item);
 
         return itemMapper.toItemDto(item);
     }
@@ -47,18 +51,24 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
 
-        return itemRepository.searchItems(search.toLowerCase())
+        List<ItemDto> result = itemRepository.searchItems(search.toLowerCase())
                 .stream()
                 .map(itemMapper::toItemDto)
                 .toList();
+        log.info("searchItems result: {}", result);
+
+        return result;
     }
 
     @Override
     public List<ItemDto> getUserItems(long userId) {
-        return itemRepository.getUserItems(userId)
+        List<ItemDto> result = itemRepository.getUserItems(userId)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .toList();
+        log.info("getUserItems result: {}", result);
+
+        return result;
     }
 
     @Override
@@ -68,6 +78,7 @@ public class ItemServiceImpl implements ItemService {
 
         updateItemFields(item, itemUpdateDto);
         itemRepository.updateItem(item);
+        log.info("Item updated: {}", item);
 
         return itemMapper.toItemDto(item);
     }
