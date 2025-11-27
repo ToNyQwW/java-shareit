@@ -15,7 +15,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     private long id;
 
     @Override
-    public Item addItem(Item item) {
+    public Item createItem(Item item) {
         item.setId(++id);
         items.put(id, item);
         return item;

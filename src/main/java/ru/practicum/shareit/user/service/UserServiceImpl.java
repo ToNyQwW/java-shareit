@@ -13,8 +13,8 @@ import ru.practicum.shareit.user.model.User;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
     @Override
     public UserDto createUser(UserCreateDto userCreateDto) {
@@ -40,6 +40,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(long id) {
-      userRepository.deleteUser(id);
+        userRepository.deleteUser(id);
     }
 }

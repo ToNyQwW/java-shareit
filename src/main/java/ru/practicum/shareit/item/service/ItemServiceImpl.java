@@ -19,29 +19,39 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
 
     @Override
-    public ItemDto addItem(ItemCreateDto itemCreateDto) {
-        //TODO после реализации user доделать логику метода и всего сервиса
-        Item item = itemMapper.toItem(itemCreateDto);
-        return null;
+    public ItemDto createItem(ItemCreateDto itemCreateDto) {
+        return itemMapper.toItemDto(itemRepository.createItem(itemMapper.toItem(itemCreateDto)));
     }
 
     @Override
     public ItemDto getItem(long id) {
-        return null;
+        return itemMapper.toItemDto(itemRepository.getItem(id).get());
     }
 
     @Override
     public List<ItemDto> searchItems(String text) {
-        return List.of();
+        return itemRepository.searchItems(text.toLowerCase())
+                .stream()
+                .map(itemMapper::toItemDto)
+                .toList();
     }
 
     @Override
     public List<ItemDto> getUserItems(long userId) {
-        return List.of();
+        return itemRepository.getUserItems(userId)
+                .stream()
+                .map(itemMapper::toItemDto)
+                .toList();
     }
 
     @Override
-    public void updateItem(ItemUpdateDto itemUpdateDto) {
+    public void updateItem(long userId, long itemId, ItemUpdateDto itemUpdateDto) {
 
+        Item item = itemRepository.getItem(itemId).get();
+        item.setName(itemUpdateDto.getName());
+        item.setDescription(itemUpdateDto.getDescription());
+        item.setAvailable(itemUpdateDto.isAvailable());
+
+        itemRepository.updateItem(item);
     }
 }
