@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.dao.UserRepository;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
@@ -17,10 +19,14 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemMapper itemMapper;
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public ItemDto createItem(ItemCreateDto itemCreateDto) {
-        return itemMapper.toItemDto(itemRepository.createItem(itemMapper.toItem(itemCreateDto)));
+    public ItemDto createItem(long userId, ItemCreateDto itemCreateDto) {
+        User user = userRepository.getUser(userId).get();
+        Item item = itemMapper.toItem(itemCreateDto);
+        item.setOwner(user);
+        return itemMapper.toItemDto(itemRepository.createItem(item));
     }
 
     @Override
