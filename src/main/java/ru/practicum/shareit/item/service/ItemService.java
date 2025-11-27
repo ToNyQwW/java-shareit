@@ -12,9 +12,9 @@ public interface ItemService {
 
     ItemDto getItem(long id);
 
-    List<ItemDto> searchItems(String text);
+    List<ItemDto> searchItems(String search);
 
     List<ItemDto> getUserItems(long userId);
 
-    void updateItem(long userId, long itemId, ItemUpdateDto itemUpdateDto);
+    ItemDto updateItem(long userId, long itemId, ItemUpdateDto itemUpdateDto);
 }

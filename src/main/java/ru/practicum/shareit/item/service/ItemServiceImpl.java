@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -11,6 +12,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -23,20 +25,29 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto createItem(long userId, ItemCreateDto itemCreateDto) {
-        User user = userRepository.getUser(userId).get();
+        User user = getUserOrElseThrow(userId);
+
         Item item = itemMapper.toItem(itemCreateDto);
         item.setOwner(user);
-        return itemMapper.toItemDto(itemRepository.createItem(item));
+        Item createdItem = itemRepository.createItem(item);
+
+        return itemMapper.toItemDto(createdItem);
     }
 
     @Override
     public ItemDto getItem(long id) {
-        return itemMapper.toItemDto(itemRepository.getItem(id).get());
+        Item item = getItemOrElseThrow(id);
+
+        return itemMapper.toItemDto(item);
     }
 
     @Override
-    public List<ItemDto> searchItems(String text) {
-        return itemRepository.searchItems(text.toLowerCase())
+    public List<ItemDto> searchItems(String search) {
+        if (search == null || search.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        return itemRepository.searchItems(search.toLowerCase())
                 .stream()
                 .map(itemMapper::toItemDto)
                 .toList();
@@ -51,13 +62,40 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void updateItem(long userId, long itemId, ItemUpdateDto itemUpdateDto) {
+    public ItemDto updateItem(long userId, long itemId, ItemUpdateDto itemUpdateDto) {
+        getUserOrElseThrow(userId);
+        Item item = getItemOrElseThrow(itemId);
 
-        Item item = itemRepository.getItem(itemId).get();
-        item.setName(itemUpdateDto.getName());
-        item.setDescription(itemUpdateDto.getDescription());
-        item.setAvailable(itemUpdateDto.isAvailable());
-
+        updateItemFields(item, itemUpdateDto);
         itemRepository.updateItem(item);
+
+        return itemMapper.toItemDto(item);
+    }
+
+    private static void updateItemFields(Item item, ItemUpdateDto itemUpdateDto) {
+        String name = itemUpdateDto.getName();
+        if (name != null && !name.isBlank()) {
+            item.setName(name);
+        }
+
+        String description = itemUpdateDto.getDescription();
+        if (description != null && !description.isBlank()) {
+            item.setDescription(description);
+        }
+
+        Boolean available = itemUpdateDto.getAvailable();
+        if (available != null) {
+            item.setAvailable(available);
+        }
+    }
+
+    private User getUserOrElseThrow(long id) {
+        return userRepository.getUser(id)
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+    }
+
+    private Item getItemOrElseThrow(long id) {
+        return itemRepository.getItem(id)
+                .orElseThrow(() -> new NotFoundException("Item with id " + id + " not found"));
     }
 }

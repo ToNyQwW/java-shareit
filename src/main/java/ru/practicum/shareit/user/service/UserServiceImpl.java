@@ -50,6 +50,19 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteUser(id);
     }
 
+    private void updateUserFields(User user, UserUpdateDto userUpdateDto) {
+        String name = userUpdateDto.getName();
+        if (name != null && !name.isBlank()) {
+            user.setName(name);
+        }
+
+        String email = userUpdateDto.getEmail();
+        if (email != null && !email.equals(user.getEmail())) {
+            throwIfEmailExists(email);
+            user.setEmail(email);
+        }
+    }
+
     private User getUserOrElseThrow(long id) {
         return userRepository.getUser(id)
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
@@ -58,19 +71,6 @@ public class UserServiceImpl implements UserService {
     private void throwIfEmailExists(String email) {
         if (userRepository.getUserByEmail(email).isPresent()) {
             throw new DuplicateEmailException("User with email " + email + " already exists");
-        }
-    }
-
-    private void updateUserFields(User user, UserUpdateDto userUpdateDto) {
-        String name = userUpdateDto.getName();
-        if (name != null) {
-            user.setName(name);
-        }
-
-        String email = userUpdateDto.getEmail();
-        if (email != null && !email.equals(user.getEmail())) {
-            throwIfEmailExists(email);
-            user.setEmail(email);
         }
     }
 }

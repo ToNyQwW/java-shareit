@@ -27,11 +27,11 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> searchItems(String text) {
+    public List<Item> searchItems(String search) {
         return items.values().stream()
-                .filter(Item::isAvailable)
-                .filter(item -> item.getName().toLowerCase().contains(text)
-                        || item.getDescription().toLowerCase().contains(text))
+                .filter(Item::getAvailable)
+                .filter(item -> item.getName().toLowerCase().contains(search)
+                        || item.getDescription().toLowerCase().contains(search))
                 .toList();
     }
 
