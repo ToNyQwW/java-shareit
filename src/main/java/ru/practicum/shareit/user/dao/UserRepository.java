@@ -10,6 +10,8 @@ public interface UserRepository {
 
     Optional<User> getUser(long id);
 
+    Optional<User> getUserByEmail(String email);
+
     void updateUser(User user);
 
     void deleteUser(long id);
