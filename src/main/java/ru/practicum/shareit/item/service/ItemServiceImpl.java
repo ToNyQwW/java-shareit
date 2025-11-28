@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
@@ -75,6 +76,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(long userId, long itemId, ItemUpdateDto itemUpdateDto) {
         getUserOrElseThrow(userId);
         Item item = getItemOrElseThrow(itemId);
+        throwIfUserNotItemOwner(userId, item);
 
         updateItemFields(item, itemUpdateDto);
         itemRepository.updateItem(item);
@@ -83,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toItemDto(item);
     }
 
-    private static void updateItemFields(Item item, ItemUpdateDto itemUpdateDto) {
+    private void updateItemFields(Item item, ItemUpdateDto itemUpdateDto) {
         String name = itemUpdateDto.getName();
         if (name != null && !name.isBlank()) {
             item.setName(name);
@@ -108,5 +110,11 @@ public class ItemServiceImpl implements ItemService {
     private Item getItemOrElseThrow(long id) {
         return itemRepository.getItem(id)
                 .orElseThrow(() -> new NotFoundException("Item with id " + id + " not found"));
+    }
+
+    private void throwIfUserNotItemOwner(long userId, Item item) {
+        if (item.getOwner().getId() != userId) {
+            throw new AccessDeniedException("User " + userId + " is not the owner of item " + item.getId());
+        }
     }
 }
