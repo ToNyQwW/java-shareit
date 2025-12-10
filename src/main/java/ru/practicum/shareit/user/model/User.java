@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -29,4 +30,7 @@ public class User {
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE)
     private List<Item> items;
+
+    @OneToMany(mappedBy = "booker", cascade = CascadeType.REMOVE)
+    private List<Booking> bookings;
 }
