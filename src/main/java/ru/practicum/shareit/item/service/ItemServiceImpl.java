@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.service;
 
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dao.ItemRepository;
@@ -19,6 +21,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@Transactional
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
@@ -32,13 +35,14 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = itemMapper.toItem(itemCreateDto);
         item.setOwner(user);
-        Item createdItem = itemRepository.createItem(item);
+        Item createdItem = itemRepository.save(item);
         log.info("Item created: {}", createdItem);
 
         return itemMapper.toItemDto(createdItem);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemDto getItem(long id) {
         Item item = getItemOrElseThrow(id);
         log.info("get Item: {}", item);
@@ -47,6 +51,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> searchItems(String search) {
         if (search == null || search.isBlank()) {
             return Collections.emptyList();
@@ -62,8 +67,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> getUserItems(long userId) {
-        List<ItemDto> result = itemRepository.getUserItems(userId)
+        List<ItemDto> result = itemRepository.findAllByOwnerId(userId)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .toList();
@@ -79,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
         throwIfUserNotItemOwner(userId, item);
 
         updateItemFields(item, itemUpdateDto);
-        itemRepository.updateItem(item);
+        itemRepository.save(item);
         log.info("Item updated: {}", item);
 
         return itemMapper.toItemDto(item);
@@ -103,12 +109,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private User getUserOrElseThrow(long id) {
-        return userRepository.getUser(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
     }
 
     private Item getItemOrElseThrow(long id) {
-        return itemRepository.getItem(id)
+        return itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item with id " + id + " not found"));
     }
 
