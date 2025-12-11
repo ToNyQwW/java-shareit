@@ -11,6 +11,8 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
+import static ru.practicum.shareit.util.RequestHeaderConstants.USER_ID_HEADER;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/items")
@@ -20,7 +22,7 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto createItem(@RequestHeader(USER_ID_HEADER) long userId,
                               @RequestBody @Valid ItemCreateDto itemCreateDto) {
         return itemService.createItem(userId, itemCreateDto);
     }
@@ -36,12 +38,12 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDto> getUserItems(@RequestHeader(USER_ID_HEADER) long userId) {
         return itemService.getUserItems(userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto updateItem(@RequestHeader(USER_ID_HEADER) long userId,
                               @PathVariable long itemId,
                               @RequestBody @Valid ItemUpdateDto itemUpdateDto) {
         return itemService.updateItem(userId, itemId, itemUpdateDto);
