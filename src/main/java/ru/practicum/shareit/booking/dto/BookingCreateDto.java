@@ -5,11 +5,13 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.booking.validation.EndAfterStart;
 
 import java.time.LocalDateTime;
 
 @Data
 @Builder
+@EndAfterStart
 public class BookingCreateDto {
 
     @NotNull
