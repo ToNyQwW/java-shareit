@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, items, bookings;
+DROP TABLE IF EXISTS users, comments, items, bookings;
 
 CREATE TABLE users
 (
@@ -30,3 +30,14 @@ CREATE TABLE bookings
     CHECK ( status IN ('WAITING', 'APPROVED', 'REJECTED', 'CANCELLED') ),
     CHECK (start_date < end_date)
 );
+
+CREATE TABLE comments
+(
+    comment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    text       VARCHAR(255) NOT NULL,
+    item_id    BIGINT       NOT NULL,
+    author_id  BIGINT       NOT NULL,
+    created    TIMESTAMP    NOT NULL,
+    CONSTRAINT fk_item_id FOREIGN KEY (item_id) REFERENCES items (item_id) ON DELETE CASCADE,
+    CONSTRAINT fk_author_id FOREIGN KEY (author_id) REFERENCES users (user_id) ON DELETE CASCADE
+)
