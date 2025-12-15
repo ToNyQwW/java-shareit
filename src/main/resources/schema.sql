@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS bookings
     item_id    BIGINT      NOT NULL,
     booker_id  BIGINT      NOT NULL,
     status     VARCHAR(15) NOT NULL,
-    CONSTRAINT fk_item_id FOREIGN KEY (item_id) REFERENCES items (item_id) ON DELETE CASCADE,
-    CONSTRAINT fk_booker_id FOREIGN KEY (booker_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_bookings_item_id FOREIGN KEY (item_id) REFERENCES items (item_id) ON DELETE CASCADE,
+    CONSTRAINT fk_bookings_booker_id FOREIGN KEY (booker_id) REFERENCES users (user_id) ON DELETE CASCADE,
     CHECK ( status IN ('WAITING', 'APPROVED', 'REJECTED', 'CANCELLED') ),
     CHECK (start_date < end_date)
 );
@@ -36,6 +36,6 @@ CREATE TABLE IF NOT EXISTS comments
     item_id    BIGINT       NOT NULL,
     author_id  BIGINT       NOT NULL,
     created    TIMESTAMP    NOT NULL,
-    CONSTRAINT fk_item_id FOREIGN KEY (item_id) REFERENCES items (item_id) ON DELETE CASCADE,
-    CONSTRAINT fk_author_id FOREIGN KEY (author_id) REFERENCES users (user_id) ON DELETE CASCADE
-)
+    CONSTRAINT fk_comments_item_id FOREIGN KEY (item_id) REFERENCES items (item_id) ON DELETE CASCADE,
+    CONSTRAINT fk_comments_author_id FOREIGN KEY (author_id) REFERENCES users (user_id) ON DELETE CASCADE
+);
