@@ -55,6 +55,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDto getBooking(long userId, long bookingId) {
         Booking booking = getBookingOrElseThrow(bookingId);
 
@@ -65,12 +66,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> getUserBookings(long userId, BookingState state) {
         User user = getUserOrElseThrow(userId);
 
         List<BookingDto> result = user.getBookings().stream()
                 .filter(getBookingPredicate(state))
-                .sorted(Comparator.comparing(Booking::getStart))
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .map(bookingMapper::toBookingDto)
                 .toList();
         log.info("getUserBookings result: {}", result);
@@ -78,12 +80,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> getOwnerBookings(long userId, BookingState state) {
         getUserOrElseThrow(userId);
 
-        List<BookingDto> result = bookingRepository.findAllByItem_Owner_Id(userId).stream()
+        List<BookingDto> result = bookingRepository.findAllByItemOwnerId(userId).stream()
                 .filter(getBookingPredicate(state))
-                .sorted(Comparator.comparing(Booking::getStart))
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .map(bookingMapper::toBookingDto)
                 .toList();
         log.info("getOwnerBookings result: {}", result);
