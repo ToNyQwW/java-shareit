@@ -28,7 +28,9 @@ public class GlobalExceptionHandler {
         return error(ex.getMessage());
     }
 
-    @ExceptionHandler({ItemNotAvailableException.class, ItemOwnerBookingException.class})
+    @ExceptionHandler({ItemNotAvailableException.class,
+            ItemOwnerBookingException.class,
+            BookingNotCompletedException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadRequest(Exception ex) {
         return error(ex.getMessage());

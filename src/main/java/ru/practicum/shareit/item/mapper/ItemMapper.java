@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.mapper;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
+import ru.practicum.shareit.item.dto.ItemWithAdditionalInfoDto;
 import ru.practicum.shareit.item.model.Item;
 
 @Component
@@ -26,8 +26,8 @@ public class ItemMapper {
                 .build();
     }
 
-    public ItemWithBookingsDto toItemWithBookingsDto(Item item) {
-        return ItemWithBookingsDto.builder()
+    public ItemWithAdditionalInfoDto toItemWithAdditionalInfoDto(Item item) {
+        return ItemWithAdditionalInfoDto.builder()
                 .id(item.getId())
                 .name((item.getName()))
                 .description(item.getDescription())

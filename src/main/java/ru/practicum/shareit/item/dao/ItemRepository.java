@@ -9,7 +9,13 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    List<Item> findAllByOwnerId(long userId);
+    @Query("""
+            SELECT DISTINCT i
+            FROM Item i
+            LEFT JOIN FETCH i.comments
+            WHERE i.owner.id = :userId
+            """)
+    List<Item> findAllByOwnerIdWithComments(@Param("userId") long userId);
 
     @Query("""
             SELECT i FROM Item i
