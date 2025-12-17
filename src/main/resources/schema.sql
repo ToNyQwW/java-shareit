@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS users, items, bookings, comments;
+
 CREATE TABLE IF NOT EXISTS users
 (
     user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

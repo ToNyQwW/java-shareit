@@ -12,10 +12,11 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("""
             SELECT DISTINCT i
             FROM Item i
-            LEFT JOIN FETCH i.comments
+            LEFT JOIN FETCH i.comments c
+            LEFT JOIN FETCH c.author
             WHERE i.owner.id = :userId
             """)
-    List<Item> findAllByOwnerIdWithComments(@Param("userId") long userId);
+    List<Item> findAllByOwnerIdWithComments(@Param("userId") long id);
 
     @Query("""
             SELECT i FROM Item i

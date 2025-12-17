@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingRepository;
@@ -21,9 +22,7 @@ import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
-import java.util.function.Predicate;
 
 @Slf4j
 @Service
@@ -68,15 +67,24 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingDto> getUserBookings(long userId, BookingState state) {
-        User user = getUserOrElseThrow(userId);
+        getUserOrElseThrow(userId);
 
-        List<BookingDto> result = user.getBookings().stream()
-                .filter(getBookingPredicate(state))
-                .sorted(Comparator.comparing(Booking::getStart).reversed())
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> result = switch (state) {
+            case ALL -> bookingRepository.findAllByBookerId(userId, sort);
+            case PAST -> bookingRepository.findAllByBookerIdAndEndBefore(userId, now, sort);
+            case FUTURE -> bookingRepository.findAllByBookerIdAndStartAfter(userId, now, sort);
+            case WAITING -> bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, sort);
+            case REJECTED -> bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, sort);
+            case CURRENT -> bookingRepository.findCurrentByBookerId(userId, now, sort);
+        };
+
+        log.info("getUserBookings result: {}", result);
+        return result.stream()
                 .map(bookingMapper::toBookingDto)
                 .toList();
-        log.info("getUserBookings result: {}", result);
-        return result;
     }
 
     @Override
@@ -84,13 +92,22 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> getOwnerBookings(long userId, BookingState state) {
         getUserOrElseThrow(userId);
 
-        List<BookingDto> result = bookingRepository.findAllByItemOwnerId(userId).stream()
-                .filter(getBookingPredicate(state))
-                .sorted(Comparator.comparing(Booking::getStart).reversed())
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> result = switch (state) {
+            case ALL -> bookingRepository.findAllByItemOwnerId(userId, sort);
+            case PAST -> bookingRepository.findAllByItemOwnerIdAndEndBefore(userId, now, sort);
+            case FUTURE -> bookingRepository.findAllByItemOwnerIdAndStartAfter(userId, now, sort);
+            case WAITING -> bookingRepository.findAllByItemOwnerIdAndStatus(userId, BookingStatus.WAITING, sort);
+            case REJECTED -> bookingRepository.findAllByItemOwnerIdAndStatus(userId, BookingStatus.REJECTED, sort);
+            case CURRENT -> bookingRepository.findCurrentByOwnerId(userId, now, sort);
+        };
+
+        log.info("getOwnerBookings result: {}", result);
+        return result.stream()
                 .map(bookingMapper::toBookingDto)
                 .toList();
-        log.info("getOwnerBookings result: {}", result);
-        return result;
     }
 
     @Override
@@ -107,18 +124,6 @@ public class BookingServiceImpl implements BookingService {
         bookingRepository.save(booking);
         log.info("Booking status changed for booking {}: from {} to {}", bookingId, oldStatus, newStatus);
         return bookingMapper.toBookingDto(booking);
-    }
-
-    private Predicate<Booking> getBookingPredicate(BookingState state) {
-        LocalDateTime now = LocalDateTime.now();
-        return switch (state) {
-            case ALL -> booking -> true;
-            case PAST -> booking -> booking.getEnd().isBefore(now);
-            case FUTURE -> booking -> booking.getStart().isAfter(now);
-            case WAITING -> booking -> booking.getStatus() == BookingStatus.WAITING;
-            case REJECTED -> booking -> booking.getStatus() == BookingStatus.REJECTED;
-            case CURRENT -> booking -> !booking.getStart().isAfter(now) && !booking.getEnd().isBefore(now);
-        };
     }
 
     private User getUserOrElseThrow(long id) {
