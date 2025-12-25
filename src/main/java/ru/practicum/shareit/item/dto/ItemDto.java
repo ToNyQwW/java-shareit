@@ -15,5 +15,5 @@ public class ItemDto {
 
     private Boolean available;
 
-    private long owner_id;
+    private long ownerId;
 }

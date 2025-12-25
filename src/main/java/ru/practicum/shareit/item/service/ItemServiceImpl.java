@@ -18,6 +18,8 @@ import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dao.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -40,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public ItemDto createItem(long userId, ItemCreateDto itemCreateDto) {
@@ -47,6 +50,12 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = itemMapper.toItem(itemCreateDto);
         item.setOwner(user);
+
+        Long requestId = itemCreateDto.getRequestId();
+        if(requestId != null) {
+            ItemRequest itemRequest = getItemRequestOrElseThrow(itemCreateDto.getRequestId());
+            item.setItemRequest(itemRequest);
+        }
         Item createdItem = itemRepository.save(item);
         log.info("Item created: {}", createdItem);
 
@@ -202,5 +211,10 @@ public class ItemServiceImpl implements ItemService {
         if (item.getOwner().getId() != userId) {
             throw new AccessDeniedException("User " + userId + " is not the owner of item " + item.getId());
         }
+    }
+
+    private ItemRequest getItemRequestOrElseThrow(long id) {
+        return itemRequestRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("ItemRequest with id " + id + " not found"));
     }
 }

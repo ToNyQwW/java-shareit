@@ -1,7 +1,5 @@
 package ru.practicum.shareit.request.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,7 +13,7 @@ public class ItemRequestDto {
 
     private String description;
 
-    private long requestor;
+    private long requestorId;
 
     private LocalDateTime created;
 }
