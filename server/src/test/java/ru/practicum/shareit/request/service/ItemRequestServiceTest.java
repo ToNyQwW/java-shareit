@@ -96,7 +96,7 @@ class ItemRequestServiceTest {
         List<ItemRequestDto> requests = itemRequestService.getAllItemRequests(owner.getId());
 
         assertEquals(1, requests.size());
-        assertEquals(requestCreateDto.getDescription(), requests.get(0).getDescription());
+        assertEquals(requestCreateDto.getDescription(), requests.getFirst().getDescription());
     }
 
     @Test
@@ -123,6 +123,6 @@ class ItemRequestServiceTest {
         List<ItemRequestWithItemsDto> requests = itemRequestService.getUserItemRequests(booker.getId());
 
         assertEquals(1, requests.size());
-        assertEquals(requestCreateDto.getDescription(), requests.get(0).getDescription());
+        assertEquals(requestCreateDto.getDescription(), requests.getFirst().getDescription());
     }
 }
