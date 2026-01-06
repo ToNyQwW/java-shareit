@@ -16,7 +16,8 @@ import ru.practicum.shareit.item.dto.ItemUpdateRequestDto;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ItemController.class)
 class ItemControllerTest {
@@ -34,11 +35,12 @@ class ItemControllerTest {
 
     @Test
     void shouldCreateItem() throws Exception {
-        ItemCreateRequestDto dto = new ItemCreateRequestDto();
-        dto.setName("Drill");
-        dto.setDescription("Power drill");
-        dto.setAvailable(true);
-        dto.setRequestId(5L);
+        ItemCreateRequestDto dto = ItemCreateRequestDto.builder()
+                .name("Drill")
+                .description("Power drill")
+                .available(true)
+                .requestId(5L)
+                .build();
 
         Mockito.when(itemClient.createItem(anyLong(), any()))
                 .thenReturn(ResponseEntity.ok("Created"));
@@ -87,7 +89,7 @@ class ItemControllerTest {
 
     @Test
     void shouldUpdateItem() throws Exception {
-        ItemUpdateRequestDto dto = new ItemUpdateRequestDto();
+        ItemUpdateRequestDto dto = ItemUpdateRequestDto.builder().build();
         dto.setName("Updated drill");
         dto.setDescription("Updated description");
         dto.setAvailable(false);
@@ -105,10 +107,11 @@ class ItemControllerTest {
 
     @Test
     void shouldCreateComment() throws Exception {
-        CommentCreateRequestDto dto = new CommentCreateRequestDto();
-        dto.setText("Nice item!");
+        CommentCreateRequestDto dto = CommentCreateRequestDto.builder()
+                .text("Nice item!")
+                .build();
 
-        Mockito.when(itemClient.createComment(anyLong(), anyLong(), any()))
+        Mockito.when(itemClient.createComment(anyLong(), anyLong(), any(CommentCreateRequestDto.class)))
                 .thenReturn(ResponseEntity.ok("Comment created"));
 
         mockMvc.perform(post("/items/10/comment")
@@ -121,7 +124,7 @@ class ItemControllerTest {
 
     @Test
     void shouldFailCreateItemWithInvalidDto() throws Exception {
-        ItemCreateRequestDto dto = new ItemCreateRequestDto();
+        ItemCreateRequestDto dto = ItemCreateRequestDto.builder().build();
 
         mockMvc.perform(post("/items")
                         .header(USER_ID_HEADER, 1L)
@@ -132,7 +135,7 @@ class ItemControllerTest {
 
     @Test
     void shouldFailCreateCommentWithBlankText() throws Exception {
-        CommentCreateRequestDto dto = new CommentCreateRequestDto();
+        CommentCreateRequestDto dto = CommentCreateRequestDto.builder().build();
 
         mockMvc.perform(post("/items/10/comment")
                         .header(USER_ID_HEADER, 1L)

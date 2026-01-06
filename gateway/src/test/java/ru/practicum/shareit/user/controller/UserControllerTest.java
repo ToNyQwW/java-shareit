@@ -30,9 +30,11 @@ class UserControllerTest {
 
     @Test
     void shouldCreateUser() throws Exception {
-        UserCreateRequestDto dto = new UserCreateRequestDto();
-        dto.setName("Alice");
-        dto.setEmail("alice@example.com");
+        UserCreateRequestDto dto = UserCreateRequestDto
+                .builder()
+                .name("Alice")
+                .email("alice@example.com")
+                .build();
 
         Mockito.when(userClient.createUser(any()))
                 .thenReturn(ResponseEntity.ok("User created"));
@@ -46,7 +48,7 @@ class UserControllerTest {
 
     @Test
     void shouldFailCreateUserWithInvalidDto() throws Exception {
-        UserCreateRequestDto dto = new UserCreateRequestDto();
+        UserCreateRequestDto dto = UserCreateRequestDto.builder().build();
 
         mockMvc.perform(post("/users")
                         .contentType("application/json")
@@ -66,7 +68,7 @@ class UserControllerTest {
 
     @Test
     void shouldUpdateUser() throws Exception {
-        UserUpdateRequestDto dto = new UserUpdateRequestDto();
+        UserUpdateRequestDto dto = UserUpdateRequestDto.builder().build();
         dto.setName("Updated Alice");
         dto.setEmail("updated@example.com");
 
