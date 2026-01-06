@@ -20,14 +20,14 @@ class BookingMapperTest {
     void shouldMapBookingToBookingDto() {
         User booker = User.builder()
                 .id(1L)
-                .name("John")
-                .email("john@example.com")
+                .name("user")
+                .email("user@test.com")
                 .build();
 
         Item item = Item.builder()
                 .id(10L)
-                .name("Drill")
-                .description("Power drill")
+                .name("item")
+                .description("description")
                 .available(true)
                 .owner(booker)
                 .build();
@@ -46,10 +46,10 @@ class BookingMapperTest {
         assertEquals(100L, dto.getId());
         assertNotNull(dto.getItem());
         assertEquals(10L, dto.getItem().getId());
-        assertEquals("Drill", dto.getItem().getName());
+        assertEquals("item", dto.getItem().getName());
         assertNotNull(dto.getBooker());
         assertEquals(1L, dto.getBooker().getId());
-        assertEquals("John", dto.getBooker().getName());
+        assertEquals("user", dto.getBooker().getName());
         assertEquals(booking.getStart(), dto.getStart());
         assertEquals(booking.getEnd(), dto.getEnd());
     }
