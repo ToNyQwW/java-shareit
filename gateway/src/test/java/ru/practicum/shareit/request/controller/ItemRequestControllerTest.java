@@ -32,7 +32,7 @@ class ItemRequestControllerTest {
     @Test
     void shouldCreateItemRequest() throws Exception {
         ItemRequestCreateDto dto = new ItemRequestCreateDto();
-        dto.setDescription("Need a drill");
+        dto.setDescription("Need item");
 
         Mockito.when(itemRequestClient.createItemRequest(anyLong(), any()))
                 .thenReturn(ResponseEntity.ok("Created"));

@@ -36,8 +36,8 @@ class ItemControllerTest {
     @Test
     void shouldCreateItem() throws Exception {
         ItemCreateRequestDto dto = ItemCreateRequestDto.builder()
-                .name("Drill")
-                .description("Power drill")
+                .name("item")
+                .description("description")
                 .available(true)
                 .requestId(5L)
                 .build();
@@ -90,7 +90,7 @@ class ItemControllerTest {
     @Test
     void shouldUpdateItem() throws Exception {
         ItemUpdateRequestDto dto = ItemUpdateRequestDto.builder().build();
-        dto.setName("Updated drill");
+        dto.setName("Updated item");
         dto.setDescription("Updated description");
         dto.setAvailable(false);
 

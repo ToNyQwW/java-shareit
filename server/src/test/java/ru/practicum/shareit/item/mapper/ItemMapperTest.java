@@ -87,8 +87,8 @@ class ItemMapperTest {
     void shouldMapItemWithCommentsToItemWithAdditionalInfoDto() {
         User owner = User.builder()
                 .id(1L)
-                .name("John")
-                .email("john@example.com")
+                .name("user")
+                .email("user@test.com")
                 .build();
 
         Comment comment = Comment.builder()
@@ -100,8 +100,8 @@ class ItemMapperTest {
 
         Item item = Item.builder()
                 .id(10L)
-                .name("Drill")
-                .description("Power drill")
+                .name("item")
+                .description("description")
                 .available(true)
                 .owner(owner)
                 .comments(List.of(comment))

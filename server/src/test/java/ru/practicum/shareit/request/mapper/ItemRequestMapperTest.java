@@ -24,13 +24,13 @@ class ItemRequestMapperTest {
     void shouldMapItemRequestToItemRequestDto() {
         User requestor = User.builder()
                 .id(1L)
-                .name("John")
-                .email("john@example.com")
+                .name("user")
+                .email("user@test.com")
                 .build();
 
         ItemRequest itemRequest = ItemRequest.builder()
                 .id(10L)
-                .description("Need a drill")
+                .description("Need item")
                 .requestor(requestor)
                 .created(LocalDateTime.now())
                 .build();
@@ -39,7 +39,7 @@ class ItemRequestMapperTest {
 
         assertNotNull(dto);
         assertEquals(10L, dto.getId());
-        assertEquals("Need a drill", dto.getDescription());
+        assertEquals("Need item", dto.getDescription());
         assertEquals(1L, dto.getRequestorId());
         assertEquals(itemRequest.getCreated(), dto.getCreated());
     }
@@ -47,13 +47,13 @@ class ItemRequestMapperTest {
     @Test
     void shouldMapCreateDtoToItemRequest() {
         ItemRequestCreateDto createDto = ItemRequestCreateDto.builder()
-                .description("Looking for a bike")
+                .description("description")
                 .build();
 
         ItemRequest itemRequest = mapper.toItemRequest(createDto);
 
         assertNotNull(itemRequest);
-        assertEquals("Looking for a bike", itemRequest.getDescription());
+        assertEquals("description", itemRequest.getDescription());
         assertNull(itemRequest.getId());
         assertNull(itemRequest.getRequestor());
         assertNull(itemRequest.getCreated());
@@ -63,13 +63,13 @@ class ItemRequestMapperTest {
     void shouldMapItemRequestToItemRequestWithItemsDto() {
         User requestor = User.builder()
                 .id(2L)
-                .name("Alice")
-                .email("alice@example.com")
+                .name("user")
+                .email("user@test.com")
                 .build();
 
         ItemRequest itemRequest = ItemRequest.builder()
                 .id(20L)
-                .description("Need a ladder")
+                .description("Need item")
                 .requestor(requestor)
                 .created(LocalDateTime.now())
                 .items(Collections.emptyList())
@@ -79,7 +79,7 @@ class ItemRequestMapperTest {
 
         assertNotNull(dto);
         assertEquals(20L, dto.getId());
-        assertEquals("Need a ladder", dto.getDescription());
+        assertEquals("Need itemr", dto.getDescription());
         assertEquals(2L, dto.getRequestorId());
         assertEquals(itemRequest.getCreated(), dto.getCreated());
         assertNotNull(dto.getItems());
@@ -90,27 +90,27 @@ class ItemRequestMapperTest {
     void shouldMapItemToItemDtoViaItemRequestWithItemsDto() {
         User requestor = User.builder()
                 .id(1L)
-                .name("Alice")
-                .email("alice@example.com")
+                .name("user")
+                .email("user@test.com")
                 .build();
 
         Item item1 = Item.builder()
                 .id(10L)
-                .name("Drill")
-                .description("Power drill")
+                .name("item1")
+                .description("description1")
                 .available(true)
                 .build();
 
         Item item2 = Item.builder()
                 .id(11L)
-                .name("Ladder")
-                .description("10m ladder")
+                .name("item2")
+                .description("description2")
                 .available(false)
                 .build();
 
         ItemRequest itemRequest = ItemRequest.builder()
                 .id(100L)
-                .description("Need tools")
+                .description("need item")
                 .requestor(requestor)
                 .created(LocalDateTime.now())
                 .items(List.of(item1, item2))
@@ -124,14 +124,14 @@ class ItemRequestMapperTest {
 
         ItemDto dto1 = dto.getItems().getFirst();
         assertEquals(10L, dto1.getId());
-        assertEquals("Drill", dto1.getName());
-        assertEquals("Power drill", dto1.getDescription());
+        assertEquals("item1", dto1.getName());
+        assertEquals("description1", dto1.getDescription());
         assertTrue(dto1.getAvailable());
 
         ItemDto dto2 = dto.getItems().get(1);
         assertEquals(11L, dto2.getId());
-        assertEquals("Ladder", dto2.getName());
-        assertEquals("10m ladder", dto2.getDescription());
+        assertEquals("item2", dto2.getName());
+        assertEquals("description2", dto2.getDescription());
         assertFalse(dto2.getAvailable());
     }
 }
