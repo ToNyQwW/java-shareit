@@ -79,7 +79,7 @@ class ItemRequestMapperTest {
 
         assertNotNull(dto);
         assertEquals(20L, dto.getId());
-        assertEquals("Need itemr", dto.getDescription());
+        assertEquals("Need item", dto.getDescription());
         assertEquals(2L, dto.getRequestorId());
         assertEquals(itemRequest.getCreated(), dto.getCreated());
         assertNotNull(dto.getItems());
