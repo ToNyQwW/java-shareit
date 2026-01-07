@@ -1,7 +1,8 @@
 package ru.practicum.shareit.user.service;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
 @SpringBootTest
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
 
     @Autowired
@@ -28,43 +30,36 @@ class UserServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-    private User user;
-    private UserCreateDto userCreateDto;
-    private UserUpdateDto userUpdateDto;
-
-
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-
-        user = User.builder()
-                .name("user")
-                .email("user@test.com")
-                .build();
-        userRepository.save(user);
-
-        userCreateDto = UserCreateDto.builder()
-                .name("userDto")
-                .email("userDto@test.com")
-                .build();
-
-        userUpdateDto = UserUpdateDto.builder()
-                .name("userUpdateDto")
-                .email("userUpdateDto@test.com")
-                .build();
+        userRepository.save(
+                User.builder()
+                        .name("user")
+                        .email("user@test.com")
+                        .build()
+        );
     }
 
     @Test
     void createUser_whenEmailExists_thenDuplicateEmailExceptionThrown() {
-        String email = user.getEmail();
-        userCreateDto.setEmail(email);
+        User user = userRepository.findById(1L).orElseThrow();
+        UserCreateDto userCreateDto = UserCreateDto.builder()
+                .name("userDto")
+                .email(user.getEmail())
+                .build();
 
         DuplicateEmailException duplicateEmailException = assertThrows(DuplicateEmailException.class,
                 () -> userService.createUser(userCreateDto));
-        assertEquals("User with email " + email + " already exists", duplicateEmailException.getMessage());
+        assertEquals("User with email " + user.getEmail() +
+                " already exists", duplicateEmailException.getMessage());
     }
 
     @Test
     void createUser_shouldCorrectlyCreateUser() {
+        UserCreateDto userCreateDto = UserCreateDto.builder()
+                .name("userDto")
+                .email("userDto@test.com")
+                .build();
         UserDto createUser = userService.createUser(userCreateDto);
 
         assertEquals(userCreateDto.getName(), createUser.getName());
@@ -82,7 +77,8 @@ class UserServiceTest {
 
     @Test
     void getUser_shouldCorrectlyGetUser() {
-        UserDto foundedUser = userService.getUser(user.getId());
+        User user = userRepository.findById(1L).orElseThrow();
+        UserDto foundedUser = userService.getUser(1L);
 
         assertEquals(user.getId(), foundedUser.getId());
         assertEquals(user.getName(), foundedUser.getName());
@@ -92,33 +88,48 @@ class UserServiceTest {
     @Test
     void updateUser_whenUserNotFound_thenNotFoundExceptionThrown() {
         long userId = 10000L;
+        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+                .name("userUpdate")
+                .email("userUpdate@test.com")
+                .build();
 
         NotFoundException notFoundException = assertThrows(NotFoundException.class,
                 () -> userService.updateUser(userId, userUpdateDto));
         assertEquals("User with id " + userId + " not found", notFoundException.getMessage());
     }
 
-
     @Test
     void updateUser_whenEmailExists_thenDuplicateEmailExceptionThrown() {
-        UserCreateDto newUser = UserCreateDto.builder()
-                .name("user")
+        UserCreateDto newUserCreateDto = UserCreateDto.builder()
+                .name("newUser")
                 .email("updateUser@test.com")
                 .build();
-        UserDto savedUser = userService.createUser(newUser);
-        String email = savedUser.getEmail();
-        userUpdateDto.setEmail(email);
+        UserDto savedUser = userService.createUser(newUserCreateDto);
+
+        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+                .name("userUpdateDto")
+                .email(savedUser.getEmail())
+                .build();
+
+        User existingUser = userRepository.findById(1L).orElseThrow();
 
         DuplicateEmailException duplicateEmailException = assertThrows(DuplicateEmailException.class,
-                () -> userService.updateUser(user.getId(), userUpdateDto));
-        assertEquals("User with email " + email + " already exists", duplicateEmailException.getMessage());
+                () -> userService.updateUser(existingUser.getId(), userUpdateDto));
+        assertEquals("User with email " + savedUser.getEmail() + " already exists", duplicateEmailException.getMessage());
     }
 
     @Test
     void updateUser_shouldCorrectlyUpdateUser() {
-        UserDto userDto = userService.updateUser(user.getId(), userUpdateDto);
+        User existingUser = userRepository.findById(1L).orElseThrow();
 
-        assertEquals(userUpdateDto.getName(), userDto.getName());
-        assertEquals(userUpdateDto.getEmail(), userDto.getEmail());
+        UserUpdateDto updateDto = UserUpdateDto.builder()
+                .name("userUpdateDto")
+                .email("userUpdateDto@test.com")
+                .build();
+
+        UserDto updatedUser = userService.updateUser(existingUser.getId(), updateDto);
+
+        assertEquals(updateDto.getName(), updatedUser.getName());
+        assertEquals(updateDto.getEmail(), updatedUser.getEmail());
     }
 }
