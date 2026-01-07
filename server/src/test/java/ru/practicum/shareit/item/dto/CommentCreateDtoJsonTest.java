@@ -16,11 +16,7 @@ class CommentCreateDtoJsonTest {
 
     @Test
     void testDeserialize() throws Exception {
-        String jsonContent = """
-        {
-          "text": "This is a comment"
-        }
-        """;
+        String jsonContent = "{ \"text\": \"This is a comment\" }";
 
         CommentCreateDto commentCreateDto = this.json.parseObject(jsonContent);
 

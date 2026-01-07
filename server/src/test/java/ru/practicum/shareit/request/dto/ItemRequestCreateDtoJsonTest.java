@@ -16,11 +16,7 @@ class ItemRequestCreateDtoJsonTest {
 
     @Test
     void testDeserialize() throws Exception {
-        String jsonContent = """
-                {
-                  "description": "Request description"
-                }
-                """;
+        String jsonContent = "{ \"description\": \"Request description\" }";
 
         ItemRequestCreateDto result = json.parseObject(jsonContent);
 

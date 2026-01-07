@@ -16,13 +16,10 @@ class ItemUpdateDtoJsonTest {
 
     @Test
     void testDeserialize() throws Exception {
-        String jsonContent = """
-        {
-          "name": "Updated Name",
-          "description": "Updated Description",
-          "available": true
-        }
-        """;
+        String jsonContent =
+                "{ \"name\": \"Updated Name\", "
+                + "\"description\": \"Updated Description\", "
+                + "\"available\": true }";
 
         ItemUpdateDto itemUpdateDto = this.json.parseObject(jsonContent);
 

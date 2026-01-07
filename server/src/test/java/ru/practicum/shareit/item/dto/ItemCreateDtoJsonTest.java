@@ -16,14 +16,11 @@ class ItemCreateDtoJsonTest {
 
     @Test
     void testDeserialize() throws Exception {
-        String jsonContent = """
-                {
-                  "name": "Item Name",
-                  "description": "Item Description",
-                  "available": true,
-                  "requestId": 10
-                }
-                """;
+        String jsonContent =
+                "{ \"name\": \"Item Name\", "
+                + "\"description\": \"Item Description\", "
+                + "\"available\": true, "
+                + "\"requestId\": 10 }";
 
         ItemCreateDto itemCreateDto = this.json.parseObject(jsonContent);
 

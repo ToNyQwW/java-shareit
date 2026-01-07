@@ -16,12 +16,7 @@ class UserUpdateDtoJsonTest {
 
     @Test
     void testDeserialize() throws Exception {
-        String jsonContent = """
-                {
-                  "name": "Updated name",
-                  "email": "updated@test.com"
-                }
-                """;
+        String jsonContent = "{ \"name\": \"Updated name\", \"email\": \"updated@test.com\" }";
 
         UserUpdateDto result = json.parseObject(jsonContent);
 
