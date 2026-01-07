@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.controller;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.client.BookingClient;
@@ -11,7 +11,7 @@ import ru.practicum.shareit.booking.model.BookingState;
 import static ru.practicum.shareit.util.RequestHeaderConstants.USER_ID_HEADER;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/bookings")
 public class BookingController {
 

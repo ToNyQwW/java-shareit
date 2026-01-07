@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
@@ -11,7 +11,7 @@ import java.util.List;
 import static ru.practicum.shareit.util.RequestHeaderConstants.USER_ID_HEADER;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
 

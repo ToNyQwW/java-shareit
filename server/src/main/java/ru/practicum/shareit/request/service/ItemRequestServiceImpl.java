@@ -1,6 +1,6 @@
 package ru.practicum.shareit.request.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemMapper itemMapper;

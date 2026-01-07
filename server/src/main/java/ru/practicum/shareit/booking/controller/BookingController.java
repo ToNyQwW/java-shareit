@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
@@ -13,7 +13,7 @@ import java.util.List;
 import static ru.practicum.shareit.util.RequestHeaderConstants.USER_ID_HEADER;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
 public class BookingController {
 

@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.controller;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.client.ItemClient;
@@ -12,7 +12,7 @@ import ru.practicum.shareit.item.dto.ItemUpdateRequestDto;
 import static ru.practicum.shareit.util.RequestHeaderConstants.USER_ID_HEADER;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
 

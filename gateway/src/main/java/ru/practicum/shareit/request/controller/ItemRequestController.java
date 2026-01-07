@@ -1,7 +1,7 @@
 package ru.practicum.shareit.request.controller;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.client.ItemRequestClient;
@@ -10,7 +10,7 @@ import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import static ru.practicum.shareit.util.RequestHeaderConstants.USER_ID_HEADER;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping(path = "/requests")
 public class ItemRequestController {
 
@@ -18,7 +18,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ResponseEntity<Object> createItemRequest(@RequestHeader(USER_ID_HEADER) long requestorId,
-                                            @RequestBody @Valid ItemRequestCreateDto itemRequestCreateDto) {
+                                                    @RequestBody @Valid ItemRequestCreateDto itemRequestCreateDto) {
         return itemRequestClient.createItemRequest(requestorId, itemRequestCreateDto);
     }
 
