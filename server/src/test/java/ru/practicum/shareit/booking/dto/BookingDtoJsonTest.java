@@ -20,8 +20,8 @@ class BookingDtoJsonTest {
 
     @Test
     void testSerialize() throws Exception {
-        LocalDateTime start = LocalDateTime.now();
-        LocalDateTime end = start.plusDays(2);
+        LocalDateTime startTime = LocalDateTime.of(2026, 1, 7, 10, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2026, 1, 8, 10, 0, 0);
 
         BookingItemDto item = BookingItemDto.builder()
                 .id(1L)
@@ -35,8 +35,8 @@ class BookingDtoJsonTest {
 
         BookingDto bookingDto = BookingDto.builder()
                 .id(3L)
-                .start(start)
-                .end(end)
+                .start(startTime)
+                .end(endTime)
                 .item(item)
                 .booker(booker)
                 .status(BookingStatus.APPROVED)
@@ -54,6 +54,8 @@ class BookingDtoJsonTest {
         assertThat(result).hasJsonPath("$.status");
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(3);
+        assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo("2026-01-07T10:00:00");
+        assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo("2026-01-08T10:00:00");
         assertThat(result).extractingJsonPathNumberValue("$.item.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.item.name").isEqualTo("item");
         assertThat(result).extractingJsonPathNumberValue("$.booker.id").isEqualTo(2);
