@@ -1,7 +1,8 @@
 package ru.practicum.shareit.item.service;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @SpringBootTest
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ItemServiceTest {
 
     @Autowired
@@ -40,66 +42,58 @@ class ItemServiceTest {
     @Autowired
     private BookingRepository bookingRepository;
 
-    private Item item;
-    private User owner;
-    private User booker;
-    private Booking booking;
-    private LocalDateTime now;
-    private ItemCreateDto itemCreateDto;
-    private ItemUpdateDto itemUpdateDto;
-    private CommentCreateDto commentCreateDto;
-
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
-        owner = User.builder()
+        User owner = userRepository.save(User.builder()
                 .name("owner")
                 .email("owner@test.com")
-                .build();
-        userRepository.save(owner);
+                .build());
 
-        booker = User.builder()
+        User booker = userRepository.save(User.builder()
                 .name("booker")
                 .email("booker@test.com")
-                .build();
-        userRepository.save(booker);
+                .build());
 
-        item = Item.builder()
-                .name("item")
-                .description("itemDescription")
-                .available(true)
-                .owner(owner)
-                .build();
-        itemRepository.save(item);
+        Item item = itemRepository.save(
+                Item.builder()
+                        .name("item")
+                        .description("description")
+                        .available(true)
+                        .owner(owner)
+                        .build()
+        );
 
-        booking = Booking.builder()
-                .item(item)
-                .booker(booker)
-                .start(now.plusDays(1))
-                .end(now.plusDays(3))
-                .status(BookingStatus.APPROVED)
-                .build();
-        bookingRepository.save(booking);
+        bookingRepository.save(
+                Booking.builder()
+                        .item(item)
+                        .booker(booker)
+                        .start(now.minusDays(3))
+                        .end(now.minusDays(1))
+                        .status(BookingStatus.APPROVED)
+                        .build()
+        );
 
-        itemCreateDto = ItemCreateDto.builder()
-                .name("itemDto")
-                .description("itemDtoDescription")
-                .available(true)
-                .build();
-
-        itemUpdateDto = ItemUpdateDto.builder()
-                .description("updatedDescription")
-                .build();
-
-        commentCreateDto = CommentCreateDto.builder()
-                .text("Comment")
-                .build();
+        bookingRepository.save(
+                Booking.builder()
+                        .item(item)
+                        .booker(booker)
+                        .start(now.plusDays(1))
+                        .end(now.plusDays(3))
+                        .status(BookingStatus.APPROVED)
+                        .build()
+        );
     }
 
     @Test
     void createItem_whenUserNotFound_thenNotFoundExceptionThrown() {
         long userId = 10000L;
+        ItemCreateDto itemCreateDto = ItemCreateDto.builder()
+                .name("itemCreateDto")
+                .description("itemCreateDtoDescription")
+                .available(true)
+                .build();
 
         NotFoundException notFoundException = assertThrows(NotFoundException.class,
                 () -> itemService.createItem(userId, itemCreateDto));
@@ -108,49 +102,38 @@ class ItemServiceTest {
 
     @Test
     void createItem_whenRequestIdIsNotNullAndNotFound_thenNotFoundExceptionThrown() {
-        long userId = booker.getId();
+        User owner = userRepository.findById(1L).orElseThrow();
         long requestId = 10000L;
-        itemCreateDto.setRequestId(requestId);
+        ItemCreateDto itemCreateDto = ItemCreateDto.builder()
+                .name("itemCreateDto")
+                .description("itemCreateDtoDescription")
+                .available(true)
+                .requestId(requestId)
+                .build();
 
         NotFoundException notFoundException = assertThrows(NotFoundException.class,
-                () -> itemService.createItem(userId, itemCreateDto));
+                () -> itemService.createItem(owner.getId(), itemCreateDto));
         assertEquals("ItemRequest with id " + requestId + " not found", notFoundException.getMessage());
     }
 
     @Test
     void getItem_whenUserIsOwner_shouldLastAndNextBookingNotNull() {
-        long userId = owner.getId();
-        long itemId = item.getId();
-        Booking lastBooking = Booking.builder()
-                .item(item)
-                .booker(booker)
-                .start(now.minusDays(3))
-                .end(now.minusDays(1))
-                .status(BookingStatus.APPROVED)
-                .build();
-        bookingRepository.save(lastBooking);
+        User owner = userRepository.findById(1L).orElseThrow();
+        Item item = itemRepository.findById(1L).orElseThrow();
 
-        ItemWithAdditionalInfoDto result = itemService.getItem(userId, itemId);
+        ItemWithAdditionalInfoDto result = itemService.getItem(owner.getId(), item.getId());
         assertNotNull(result.getLastBooking());
         assertNotNull(result.getNextBooking());
-        assertEquals(result.getLastBooking().getItem().getId(), itemId);
-        assertEquals(result.getNextBooking().getItem().getId(), itemId);
+        assertEquals(item.getId(), result.getLastBooking().getItem().getId());
+        assertEquals(item.getId(), result.getNextBooking().getItem().getId());
     }
 
     @Test
     void getItem_whenUserIsNotOwner_shouldLastAndNextBookingNull() {
-        long userId = booker.getId();
-        long itemId = item.getId();
-        Booking nextBooking = Booking.builder()
-                .item(item)
-                .booker(booker)
-                .start(now.plusDays(1))
-                .end(now.plusDays(3))
-                .status(BookingStatus.APPROVED)
-                .build();
-        bookingRepository.save(nextBooking);
+        User booker = userRepository.findById(2L).orElseThrow();
+        Item item = itemRepository.findById(1L).orElseThrow();
 
-        ItemWithAdditionalInfoDto result = itemService.getItem(userId, itemId);
+        ItemWithAdditionalInfoDto result = itemService.getItem(booker.getId(), item.getId());
         assertNull(result.getLastBooking());
         assertNull(result.getNextBooking());
     }
@@ -164,6 +147,7 @@ class ItemServiceTest {
 
     @Test
     void searchItems_shouldReturnItemByName() {
+        Item item = itemRepository.findById(1L).orElseThrow();
         List<ItemDto> result = itemService.searchItems(item.getName());
 
         assertFalse(result.isEmpty());
@@ -172,6 +156,7 @@ class ItemServiceTest {
 
     @Test
     void searchItems_shouldReturnItemByDescription() {
+        Item item = itemRepository.findById(1L).orElseThrow();
         List<ItemDto> result = itemService.searchItems(item.getDescription());
 
         assertFalse(result.isEmpty());
@@ -195,29 +180,34 @@ class ItemServiceTest {
     }
 
     @Test
-    void getUserItems_whenUserDontHaveItem_shouldReturnEmptyList() {
-        long userId = booker.getId();
+    void getUserItems_whenUserDoesNotHaveItems_shouldReturnEmptyList() {
+        User booker = userRepository.findById(2L).orElseThrow();
 
-        List<ItemWithAdditionalInfoDto> userItems = itemService.getUserItems(userId);
+        List<ItemWithAdditionalInfoDto> userItems = itemService.getUserItems(booker.getId());
         assertTrue(userItems.isEmpty());
     }
 
     @Test
     void getUserItems_shouldCorrectlyReturnItems() {
-        long userId = owner.getId();
+        User owner = userRepository.findById(1L).orElseThrow();
+        Item item = itemRepository.findById(1L).orElseThrow();
 
-        List<ItemWithAdditionalInfoDto> userItems = itemService.getUserItems(userId);
-        assertFalse(userItems.isEmpty());
+        List<ItemWithAdditionalInfoDto> result = itemService.getUserItems(owner.getId());
+        assertFalse(result.isEmpty());
 
-        ItemWithAdditionalInfoDto resultItem = userItems.getFirst();
-        assertEquals(resultItem.getId(), item.getId());
-        assertNotNull(resultItem.getNextBooking());
-        assertNull(resultItem.getLastBooking());
+        ItemWithAdditionalInfoDto firstItem = result.getFirst();
+        assertEquals(item.getId(), firstItem.getId());
+        assertNotNull(firstItem.getNextBooking());
+        assertNotNull(firstItem.getLastBooking());
     }
 
     @Test
     void updateItem_whenUserNotFound_thenNotFoundExceptionThrown() {
         long userId = 10000L;
+        Item item = itemRepository.findById(1L).orElseThrow();
+        ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
+                .description("updatedDescription")
+                .build();
 
         NotFoundException notFoundException = assertThrows(NotFoundException.class,
                 () -> itemService.updateItem(userId, item.getId(), itemUpdateDto));
@@ -227,6 +217,10 @@ class ItemServiceTest {
     @Test
     void updateItem_whenItemNotFound_thenNotFoundExceptionThrown() {
         long itemId = 10000L;
+        User booker = userRepository.findById(2L).orElseThrow();
+        ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
+                .description("updatedDescription")
+                .build();
 
         NotFoundException notFoundException = assertThrows(NotFoundException.class,
                 () -> itemService.updateItem(booker.getId(), itemId, itemUpdateDto));
@@ -235,28 +229,39 @@ class ItemServiceTest {
 
     @Test
     void updateItem_whenUserNotItemOwner_thenAccessDeniedExceptionThrown() {
-        long userId = booker.getId();
+        User booker = userRepository.findById(2L).orElseThrow();
+        Item item = itemRepository.findById(1L).orElseThrow();
+        ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
+                .description("updatedDescription")
+                .build();
 
         AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class,
-                () -> itemService.updateItem(userId, item.getId(), itemUpdateDto));
-        assertEquals("User " + userId + " is not the owner of item " + item.getId(),
+                () -> itemService.updateItem(booker.getId(), item.getId(), itemUpdateDto));
+        assertEquals("User " + booker.getId() + " is not the owner of item " + item.getId(),
                 accessDeniedException.getMessage());
     }
 
     @Test
     void updateItem_shouldCorrectlyUpdateItem() {
-        long userId = owner.getId();
-        long itemId = item.getId();
+        User owner = userRepository.findById(1L).orElseThrow();
+        Item item = itemRepository.findById(1L).orElseThrow();
+        ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
+                .description("updatedDescription")
+                .build();
 
-        ItemDto itemDto = itemService.updateItem(userId, itemId, itemUpdateDto);
+        ItemDto updatedItem = itemService.updateItem(owner.getId(), item.getId(), itemUpdateDto);
 
-        assertEquals(itemId, itemDto.getId());
-        assertEquals(itemUpdateDto.getDescription(), itemDto.getDescription());
+        assertEquals(item.getId(), updatedItem.getId());
+        assertEquals(itemUpdateDto.getDescription(), updatedItem.getDescription());
     }
 
     @Test
     void createComment_whenUserNotFound_thenNotFoundExceptionThrown() {
         long userId = 10000L;
+        Item item = itemRepository.findById(1L).orElseThrow();
+        CommentCreateDto commentCreateDto = CommentCreateDto.builder()
+                .text("Comment")
+                .build();
 
         NotFoundException notFoundException = assertThrows(NotFoundException.class,
                 () -> itemService.createComment(userId, item.getId(), commentCreateDto));
@@ -266,6 +271,10 @@ class ItemServiceTest {
     @Test
     void createComment_whenItemNotFound_thenNotFoundExceptionThrown() {
         long itemId = 10000L;
+        User booker = userRepository.findById(2L).orElseThrow();
+        CommentCreateDto commentCreateDto = CommentCreateDto.builder()
+                .text("Comment")
+                .build();
 
         NotFoundException notFoundException = assertThrows(NotFoundException.class,
                 () -> itemService.createComment(booker.getId(), itemId, commentCreateDto));
@@ -273,27 +282,28 @@ class ItemServiceTest {
     }
 
     @Test
-    void createComment_WhenNotHaveCompletedBooking_thenBookingNotCompletedExceptionThrown() {
+    void createComment_whenNoCompletedBooking_thenBookingNotCompletedExceptionThrown() {
+        User owner = userRepository.findById(1L).orElseThrow();
+        Item item = itemRepository.findById(1L).orElseThrow();
+        CommentCreateDto commentCreateDto = CommentCreateDto.builder()
+                .text("Comment")
+                .build();
+
         BookingNotCompletedException exception = assertThrows(BookingNotCompletedException.class,
-                () -> itemService.createComment(booker.getId(), item.getId(), commentCreateDto));
+                () -> itemService.createComment(owner.getId(), item.getId(), commentCreateDto));
         assertEquals("Completed booking with id: " + item.getId() + " not found", exception.getMessage());
     }
 
     @Test
     void createComment_shouldCorrectlyCreateComment() {
-        Booking lastBooking = Booking.builder()
-                .item(item)
-                .booker(booker)
-                .start(now.minusDays(10))
-                .end(now.minusDays(5))
-                .status(BookingStatus.APPROVED)
+        User booker = userRepository.findById(2L).orElseThrow();
+        Item item = itemRepository.findById(1L).orElseThrow();
+        CommentCreateDto commentCreateDto = CommentCreateDto.builder()
+                .text("Comment")
                 .build();
-        bookingRepository.save(lastBooking);
 
-        CommentDto comment = itemService.createComment(booker.getId(), item.getId(), commentCreateDto);
-
-        assertEquals(booker.getName(), comment.getAuthorName());
-        assertEquals(commentCreateDto.getText(), comment.getText());
+        CommentDto createdComment = itemService.createComment(booker.getId(), item.getId(), commentCreateDto);
+        assertEquals(booker.getName(), createdComment.getAuthorName());
+        assertEquals(commentCreateDto.getText(), createdComment.getText());
     }
-
 }
