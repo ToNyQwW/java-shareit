@@ -1,12 +1,13 @@
 package ru.practicum.shareit.booking.service;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -26,10 +27,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
-@SpringBootTest
 @Transactional
+@SpringBootTest
 @ActiveProfiles("test")
+@DirtiesContext(classMode = AFTER_CLASS)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BookingServiceTest {
 
